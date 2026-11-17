@@ -1,0 +1,23 @@
+{
+  "name": "mum",
+  "version": "1.0.0",
+  "description": "A full-stack MERN (MongoDB, Express.js, React.js, Node.js) web application built as a developer assessment. It features a pixel-inspired responsive replica of the MUM digital agency homepage (`https://www.mum.lu/`), a fully functional contact enquiry form with robust validation, and an administrative dashboard supporting complete CRUD operations and search/filtering.",
+  "homepage": "https://github.com/jeevaroyes1/mum#readme",
+  "bugs": {
+    "url": "https://github.com/jeevaroyes1/mum/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeevaroyes1/mum.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "server": "node backend/server.js",
+    "client": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
