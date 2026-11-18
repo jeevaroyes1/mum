@@ -18,7 +18,7 @@
    - [2. Contact / Enquiry Form](#2-contact--enquiry-form)
    - [3. Backend Dashboard (Complete CRUD)](#3-backend-dashboard-complete-crud)
    - [4. Technology Stack & Libraries](#4-technology-stack--libraries)
-3. [Architecture Decisions & Technical Approach]
+3. [Architecture Decisions & Technical Approach](#architecture-decisions--technical-approach)
 4. [Assumptions Made During Implementation](#assumptions-made-during-implementation)
 5. [Database Design](#database-design)
 7. [API Documentation](#api-documentation)
