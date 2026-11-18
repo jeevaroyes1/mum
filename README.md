@@ -18,13 +18,12 @@
    - [2. Contact / Enquiry Form](#2-contact--enquiry-form)
    - [3. Backend Dashboard (Complete CRUD)](#3-backend-dashboard-complete-crud)
    - [4. Technology Stack & Libraries](#4-technology-stack--libraries)
-3. [Assumptions Made During Implementation](#assumptions-made-during-implementation)
-4. [Database Design](#database-design)
-5. [API Documentation](#api-documentation)
-6. [Admin Access & Demo Credentials](#admin-access--demo-credentials)
-7. [Local Development Setup](#local-development-setup)
-8. [Database Setup Instructions](#database-setup-instructions)
-9. [Deployment Guide (Vercel)](#deployment-guide-vercel)
+3. [Architecture Decisions & Technical Approach]
+4. [Assumptions Made During Implementation](#assumptions-made-during-implementation)
+5. [Database Design](#database-design)
+7. [API Documentation](#api-documentation)
+8. [Admin Access & Demo Credentials](#admin-access--demo-credentials)
+9. [Local Development Setup](#local-development-setup)
 
 ---
 
@@ -119,6 +118,34 @@ Accessible at `/admin` (or via the lock icon in the Navbar):
 - **MongoDB Atlas:** Multi-region cloud replica set hosting the `mum_db` document store.
 - **Vercel:** Multi-service cloud hosting platform distributing frontend static assets via Edge CDN and running backend logic as Node.js serverless functions.
 - **Git & GitHub:** Version control with automated CI/CD deployments triggered on `git push origin main`.
+
+---
+
+## Architecture Decisions & Technical Approach
+
+1. **Decoupled Multi-Service Monorepo:**
+   - Instead of a traditional monolithic server or a full-stack framework like Next.js, the application uses a decoupled architecture with independent `frontend/` and `backend/` services.
+   - Each service maintains its own `package.json`, allowing independent dependency management and isolated build lifecycles.
+   - **Vercel Deployment:** Both services are configured through `vercel.json`.
+   - **Frontend:** Compiled into static assets and delivered globally through Vercel's Edge CDN.
+   - **Backend:** Deployed as an on-demand serverless microservice.
+   - **API Routing:** Vercel rewrites `/api/*` requests to the backend, providing a unified entry point and avoiding cross-origin requests in production.
+
+2. **Serverless Connection Caching (MongoDB):**
+   - **Implementation:** Global MongoDB connection caching is implemented in `backend/config/db.js` using `global.mongoose`.
+   - **Connection Reuse:** Warm serverless instances reuse existing Mongoose connections instead of establishing new database connections for every request.
+   - **Impact:** Reduces connection overhead and helps prevent MongoDB Atlas connection pool exhaustion during traffic spikes.
+
+3. **Synchronous Route Registration & Pre-Flight Middleware:**
+   - **Route Registration:** All Express routes (`/api/auth`, `/api/enquiries`) are registered synchronously during application initialization.
+   - **Database Verification:** Database connectivity is checked through pre-flight middleware before requests are passed to their respective route handlers.
+   - **Impact:** Prevents route initialization race conditions that could occur if routes were mounted asynchronously through database callbacks.
+
+4. **Zero-Dependency Localization Architecture:**
+   - **Implementation:** Bilingual support (EN/FR) is implemented using React's native Context API and centralized dictionary maps instead of third-party internationalization libraries.
+   - **Language Switching:** A shared language context provides translations across application components and enables instantaneous language switching.
+   - **Persistence:** The selected language preference is stored in `localStorage`, preserving the user's choice across page reloads.
+   - **Impact:** Avoids additional localization dependencies while keeping the production JavaScript bundle lightweight.
 
 ---
 
@@ -254,71 +281,6 @@ To inspect and test the **Admin Dashboard (CRUD operations)**:
 
 6. **Open in Browser:**
    Visit `http://localhost:5173` to test the application locally.
-
----
-
-## Database Setup Instructions
-
-The application uses **MongoDB Atlas**. Follow these steps to connect your own cluster if required:
-
-1. **Create an Atlas Account & Cluster:**
-   - Sign up at [mongodb.com/atlas](https://www.mongodb.com/atlas).
-   - Create a free tier cluster (M0).
-2. **Configure Database Access:**
-   - Under **Security** $\to$ **Database Access**, create a user with `Read and write to any database` privileges.
-3. **Configure Network Access:**
-   - Under **Security** $\to$ **Network Access**, add IP address `0.0.0.0/0` (Allow Access from Anywhere) to permit connections from Vercel's dynamic serverless IP pool.
-4. **Obtain Connection String:**
-   - Click **Connect** $\to$ **Drivers** (Node.js).
-   - Copy the SRV connection string:
-     ```text
-     mongodb+srv://<username>:<password>@cluster0.w9modhc.mongodb.net/mum_db?retryWrites=true&w=majority
-     ```
-   - Replace `<username>` and `<password>` with your database user credentials.
-   - Ensure the database name (e.g. `/mum_db`) is included before query parameters.
-
----
-
-## Deployment Guide (Vercel)
-
-The repository is configured for zero-configuration multi-service deployment on **Vercel** via `vercel.json`:
-
-```json
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "backend": {
-      "root": "backend",
-      "framework": "node",
-      "installCommand": "npm install",
-      "buildCommand": "npm install",
-      "outputDirectory": "."
-    },
-    "frontend": {
-      "root": "frontend",
-      "framework": "vite"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": { "service": "backend" }
-    },
-    {
-      "source": "/(.*)",
-      "destination": { "service": "frontend" }
-    }
-  ]
-}
-```
-
-### Steps to Deploy:
-1. Push your repository to GitHub.
-2. In the Vercel Dashboard, select **Add New Project** $\to$ Import `jeevaroyes1/mum`.
-3. Under **Project Settings** $\to$ **Environment Variables**, configure:
-   - `MONGO_URI`: Your MongoDB Atlas connection string (checked for **Production** and **Preview**).
-   - `VITE_API_URL`: Set to `/api` (checked for **Production** and **Preview**).
-4. Click **Deploy**. Vercel will build the Vite frontend, provision the Express serverless function, and connect the reverse proxy.
 
 ---
 
