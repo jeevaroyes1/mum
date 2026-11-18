@@ -1,13 +1,3 @@
-/**
- * @description Model for storing admin users
- * @module models/AdminUser
- * @requires mongoose
- * @requires bcryptjs
- * @requires jsonwebtoken
- * @requires dotenv
- * @requires path
- */
-
 const mongoose = require('mongoose');
 
 const adminUserSchema = new mongoose.Schema(
