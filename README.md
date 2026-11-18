@@ -7,7 +7,6 @@
 > **Developer Assessment 2:** Website Replication (Homepage Only) + Form Management  
 > **Reference Website:** [https://www.mum.lu/](https://www.mum.lu/)  
 > **Live Deployed URL:** [https://mum-five-tawny.vercel.app/](https://mum-five-tawny.vercel.app/)  
-> **Backend / API Endpoint:** `https://mum-five-tawny.vercel.app/api/`  
 > **Repository:** [https://github.com/jeevaroyes1/mum](https://github.com/jeevaroyes1/mum)  
 
 ---
@@ -229,7 +228,7 @@ Base URL in Local Development: `http://localhost:5000/api`
 
 To inspect and test the **Admin Dashboard (CRUD operations)**:
 
-1. Click the **Lock icon** in the top navigation bar, or navigate directly to:
+1. Click the **Lock icon** in the top navigation bar, navigate directly to:
    ```
    https://mum-five-tawny.vercel.app/admin
    ```
