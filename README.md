@@ -153,8 +153,7 @@ Standard Node servers maintain long-lived database connections. In serverless fu
 ## Assumptions Made During Implementation
 
 1. **Scope:** The assessment specifically requested replicating the **homepage only** (`https://www.mum.lu/`) plus a form management dashboard. External subpages linked in agency menus (e.g. detailed case studies, legal imprints) route back to relevant anchor sections or display informative indicators.
-2. **Phone Number Formatting:** While international phone numbers are accepted, the primary validation regex accommodates standard 10-digit formats and E.164 international prefixes (`/^[+]?[\d\s\-().]{7,20}$/`).
-3. **Admin Credential Model:** For assessment review purposes, admin authentication uses direct document lookup against an `adminusers` collection with auto-seeding of the default credentials (`admin@mum.lu` / `admin123`). In an enterprise production system, this would be augmented with `bcrypt` salt rounds and HTTP-only signed JWT session cookies.
+2. **Admin Credential Model:** For assessment review purposes, admin authentication uses direct document lookup against an `adminusers` collection with auto-seeding of the default credentials (`admin@mum.lu` / `admin123`). In an enterprise production system, this would be augmented with `bcrypt` salt rounds and HTTP-only signed JWT session cookies.
 
 ---
 
@@ -277,7 +276,8 @@ To inspect and test the **Admin Dashboard (CRUD operations)**:
 
 4. **Start the Backend Server:**
    ```bash
-   npm run server
+   cd backend
+   npm run dev
    ```
    *Expected output:*
    ```text
@@ -287,7 +287,8 @@ To inspect and test the **Admin Dashboard (CRUD operations)**:
 
 5. **Start the Frontend Development Client (in a separate terminal):**
    ```bash
-   npm run client
+   cd frontend
+   npm run dev
    ```
    *Expected output:*
    ```text
