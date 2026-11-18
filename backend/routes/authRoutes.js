@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const AdminUser = require('../models/AdminUser');
 
-// Helper to seed initial admin user if none exists
 const seedInitialAdmin = async () => {
   try {
     const existing = await AdminUser.findOne({ email: 'admin@mum.lu' });
@@ -20,7 +19,6 @@ const seedInitialAdmin = async () => {
   }
 };
 
-// POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body || {};
@@ -35,7 +33,6 @@ router.post('/login', async (req, res) => {
     const cleanEmail = email.trim().toLowerCase();
     let user = await AdminUser.findOne({ email: cleanEmail });
 
-    // Self-healing: if the default admin is requested but not found, ensure seeded
     if (!user && cleanEmail === 'admin@mum.lu') {
       await seedInitialAdmin();
       user = await AdminUser.findOne({ email: cleanEmail });
@@ -74,7 +71,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// POST /api/auth/signup (or register another admin)
 router.post('/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body || {};
@@ -122,7 +118,6 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// GET /api/auth/verify (check if current token/session or email exists)
 router.get('/verify', async (req, res) => {
   try {
     await seedInitialAdmin();

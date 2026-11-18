@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const Enquiry = require('../models/Enquiry');
 
-// Validation rules
 const enquiryValidation = [
   body('name')
     .trim()
@@ -24,9 +23,6 @@ const enquiryValidation = [
     .isLength({ min: 10 }).withMessage('Message must be at least 10 characters'),
 ];
 
-
-
-//GET all enquiries (with optional search & status filter)
 router.get('/', async (req, res) => {
   try {
     const { search, status } = req.query;
@@ -51,7 +47,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-//GET single enquiry by ID
 router.get('/:id', async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {

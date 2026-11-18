@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Global cache across serverless warm invocations
 let cached = global.mongoose;
 
 if (!cached) {
@@ -14,7 +13,6 @@ const connectDB = async () => {
     throw new Error('MONGO_URI is not defined in environment variables');
   }
 
-  // If already connected, reuse existing connection
   if (mongoose.connection.readyState === 1) {
     return mongoose.connection;
   }
@@ -35,7 +33,7 @@ const connectDB = async () => {
         return m.connection;
       })
       .catch((err) => {
-        cached.promise = null; // Reset promise so subsequent requests can retry
+        cached.promise = null;
         console.error(`Database Connection Error: ${err.message}`);
         throw err;
       });
