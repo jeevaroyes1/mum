@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "note": "Project configuration",
   "services": {
     "backend": {
       "root": "backend",
