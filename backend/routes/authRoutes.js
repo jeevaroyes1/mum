@@ -20,13 +20,10 @@ const seedInitialAdmin = async () => {
   }
 };
 
-// Seed on module load
-seedInitialAdmin();
-
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
 
     if (!email || !password) {
       return res.status(400).json({
@@ -36,7 +33,13 @@ router.post('/login', async (req, res) => {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const user = await AdminUser.findOne({ email: cleanEmail });
+    let user = await AdminUser.findOne({ email: cleanEmail });
+
+    // Self-healing: if the default admin is requested but not found, ensure seeded
+    if (!user && cleanEmail === 'admin@mum.lu') {
+      await seedInitialAdmin();
+      user = await AdminUser.findOne({ email: cleanEmail });
+    }
 
     if (!user) {
       return res.status(401).json({
@@ -63,7 +66,7 @@ router.post('/login', async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', error.message || error);
     return res.status(500).json({
       success: false,
       message: 'Server error during authentication.',
@@ -74,7 +77,7 @@ router.post('/login', async (req, res) => {
 // POST /api/auth/signup (or register another admin)
 router.post('/signup', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } = req.body || {};
 
     if (!email || !password) {
       return res.status(400).json({
@@ -111,7 +114,7 @@ router.post('/signup', async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Signup error:', error);
+    console.error('Signup error:', error.message || error);
     return res.status(500).json({
       success: false,
       message: 'Server error creating admin account.',
@@ -122,6 +125,7 @@ router.post('/signup', async (req, res) => {
 // GET /api/auth/verify (check if current token/session or email exists)
 router.get('/verify', async (req, res) => {
   try {
+    await seedInitialAdmin();
     const adminCount = await AdminUser.countDocuments();
     return res.status(200).json({
       success: true,
@@ -129,8 +133,10 @@ router.get('/verify', async (req, res) => {
       defaultAdminAvailable: true,
     });
   } catch (error) {
+    console.error('Verify error:', error.message || error);
     return res.status(500).json({ success: false, message: 'Server error checking auth.' });
   }
 });
 
 module.exports = router;
+module.exports.seedInitialAdmin = seedInitialAdmin;
