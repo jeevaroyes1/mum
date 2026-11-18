@@ -18,15 +18,13 @@
    - [2. Contact / Enquiry Form](#2-contact--enquiry-form)
    - [3. Backend Dashboard (Complete CRUD)](#3-backend-dashboard-complete-crud)
    - [4. Technology Stack & Libraries](#4-technology-stack--libraries)
-3. [Architecture Decisions & Technical Approach](#architecture-decisions--technical-approach)
-4. [Assumptions Made During Implementation](#assumptions-made-during-implementation)
-5. [Evaluation Criteria Matrix](#evaluation-criteria-matrix)
-6. [Database Design](#database-design)
-7. [API Documentation](#api-documentation)
-8. [Admin Access & Demo Credentials](#admin-access--demo-credentials)
-9. [Local Development Setup](#local-development-setup)
-10. [Database Setup Instructions](#database-setup-instructions)
-11. [Deployment Guide (Vercel)](#deployment-guide-vercel)
+3. [Assumptions Made During Implementation](#assumptions-made-during-implementation)
+4. [Database Design](#database-design)
+5. [API Documentation](#api-documentation)
+6. [Admin Access & Demo Credentials](#admin-access--demo-credentials)
+7. [Local Development Setup](#local-development-setup)
+8. [Database Setup Instructions](#database-setup-instructions)
+9. [Deployment Guide (Vercel)](#deployment-guide-vercel)
 
 ---
 
@@ -124,51 +122,10 @@ Accessible at `/admin` (or via the lock icon in the Navbar):
 
 ---
 
-## Architecture Decisions & Technical Approach
-
-### 1. Decoupled Multi-Service Monorepo
-Instead of a traditional monolithic server serving HTML or coupling the codebase to a heavy full-stack framework like Next.js, we chose a **decoupled multi-service architecture**:
-- `frontend/` and `backend/` maintain independent `package.json` manifests, allowing separate dependency resolution and isolated build lifecycles.
-- Unified through `vercel.json` services configuration:
-  - Frontend compiled into static edge assets delivered globally via Vercel's Edge CDN.
-  - Backend packaged as an on-demand serverless microservice.
-  - Vercel Edge reverse proxy rewrites `/api/(.*)` to the backend, eliminating cross-domain CORS preflight overhead in production.
-
-### 2. Serverless Connection Caching (MongoDB)
-Standard Node servers maintain long-lived database connections. In serverless functions, execution containers spin up and down dynamically.
-- **Decision:** Implemented global connection pooling in `backend/config/db.js` using `global.mongoose`.
-- **Impact:** Warm serverless containers reuse active MongoDB connections in **0ms** without re-authenticating, protecting the Atlas cluster from connection pool exhaustion during traffic spikes.
-
-### 3. Synchronous Route Registration & Pre-Flight Middleware
-- **Decision:** All Express routes (`/api/auth`, `/api/enquiries`) are registered synchronously at container load time.
-- **Impact:** Eliminates cold-start race conditions where incoming requests could arrive before asynchronous database callbacks finished mounting routes. Database availability is verified per-request via pre-flight middleware before delegating to route handlers.
-
-### 4. Zero-Dependency Localization Architecture
-- **Decision:** Implemented bilingual support (EN/FR) using React's native Context API and centralized dictionary maps instead of bulky third-party i18n libraries.
-- **Impact:** Keeps the production JavaScript bundle under 400 KB gzipped while delivering instantaneous language switching persisted in `localStorage`.
-
----
-
 ## Assumptions Made During Implementation
 
 1. **Scope:** The assessment specifically requested replicating the **homepage only** (`https://www.mum.lu/`) plus a form management dashboard. External subpages linked in agency menus (e.g. detailed case studies, legal imprints) route back to relevant anchor sections or display informative indicators.
 2. **Admin Credential Model:** For assessment review purposes, admin authentication uses direct document lookup against an `adminusers` collection with auto-seeding of the default credentials (`admin@mum.lu` / `admin123`). In an enterprise production system, this would be augmented with `bcrypt` salt rounds and HTTP-only signed JWT session cookies.
-
----
-
-## Evaluation Criteria Matrix
-
-| Evaluation Criteria | Implementation in Project | Verified Evidence |
-|---|---|---|
-| **Accuracy of Homepage Replication** | Pixel-accurate replica of MUM.lu: typography, color palette, video zoom reel, text ticker, services, portfolio, stats, and footer. | Visually verified at [Live Website](https://mum-five-tawny.vercel.app/). |
-| **React Component Structure** | Clean modularity: atomic components (`Navbar`, `Hero`, `Services`, `ContactForm`), context providers, custom hooks. | Inspect `frontend/src/components/` and `src/context/`. |
-| **Responsive Design** | Fluid layouts utilizing CSS Grid, Flexbox, media queries for Desktop, Tablet, and Mobile devices. | Tested across multiple viewport widths; mobile drawer menu included. |
-| **Backend & API Implementation** | RESTful Express 5 API with structured JSON responses, health checks, and global error handling. | Inspect `backend/index.js` and `backend/routes/`. |
-| **Database Design** | Mongoose schemas with strict data types, required constraints, email uniqueness, and status enums. | Inspect `backend/models/AdminUser.js` and `Enquiry.js`. |
-| **CRUD Functionality** | Full enquiry lifecycle: Create (public form & admin), Read (list & single), Update (edit modal), Delete (modal). | Fully operational on `/admin` dashboard. |
-| **Form Validation & Error Handling** | Dual validation: live client-side regex + server-side `express-validator` middleware. | Tested with both valid and invalid payloads. |
-| **Deployment Quality** | Automated continuous deployment on Vercel Edge Network with MongoDB Atlas cloud hosting. | Zero-downtime deploys on push to `main`. |
-| **Code Quality & Maintainability** | Fully commented, clean separation of concerns, deterministic lockfiles, zero unused dependencies. | Clean linting pass and build tests. |
 
 ---
 
